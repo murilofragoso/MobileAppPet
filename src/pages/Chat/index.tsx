@@ -1,63 +1,86 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, Text, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { GiftedChat } from 'react-native-gifted-chat';
 
 import { withFormik } from 'formik';
 
-const Home = () => {
+interface Message {
+    _id: number;
+    text: string;
+    createdAt: Date;
+    user: {
+        _id: number,
+        name: string,
+        avatar: string,
+    };
+  }
+
+const Chat = () => {
   const navigation = useNavigation();
 
-  function handleNavigateToRegister() {
-    navigation.navigate('Register');
+  function handleNavigateback() {
+    navigation.goBack();
   }
 
-  function handleNavigateToChat() {
-    navigation.navigate('Chat');
-  }
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    setMessages([
+      {
+        _id: 1,
+        text: 'Olá Murilo!',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
+        },
+      },
+    ])
+  }, [])
+
+  const onSend = useCallback((messages = []) => {
+    setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+  }, [])
 
   return (
     <View style={styles.container}>
       <View style={styles.main}>
-        <Text style={styles.title}>Melhor Aumigo</Text>
-      </View>
-
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="E-mail"
+        <GiftedChat
+          messages={messages}
+          onSend={messages => onSend(messages)}
+          user={{
+            _id: 1,
+          }}
+          placeholder="Escreva uma mensagem..."
         />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-        />
-
-        <RectButton style={styles.button} onPress={handleNavigateToChat}>
-          <Text style={styles.buttonText}>Login</Text>
-        </RectButton>
-        
-        <RectButton style={styles.button} onPress={handleNavigateToRegister}>
-          <Text style={styles.buttonText}>Registre-se</Text>
-        </RectButton>
-
+        {
+          Platform.OS === 'android' && <KeyboardAvoidingView behavior="padding" />
+        }
       </View>
-
     </View>
   );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: 'center',
-        backgroundColor: "#00BFFF"
+      flex: 1,
+      backgroundColor: "#00BFFF",
+      alignItems: "center",
+      justifyContent: 'flex-end'
     },
   
     main: {
       flex: 1,
-      justifyContent: 'flex-start',
-      height: 5
+      width: '100%',
+      maxHeight: '65%',
+      backgroundColor: 'white'
+    },
+
+    chat: {
+      height: 150
     },
 
     form: {
@@ -114,7 +137,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Home;
+export default Chat;
 
 /*export default withFormik({
     mapPropsToValues: () => ({
@@ -125,4 +148,4 @@ export default Home;
     handleSubmit: (values) => {
         console.log(values);
     }
-})(Home);*/
+})(Chat);*/

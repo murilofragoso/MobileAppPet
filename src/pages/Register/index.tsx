@@ -3,17 +3,14 @@ import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 
+
 import { withFormik } from 'formik';
 
-const Home = () => {
+const Register = () => {
   const navigation = useNavigation();
 
-  function handleNavigateToRegister() {
-    navigation.navigate('Register');
-  }
-
-  function handleNavigateToChat() {
-    navigation.navigate('Chat');
+  function handleNavigateback() {
+    navigation.goBack();
   }
 
   return (
@@ -25,6 +22,11 @@ const Home = () => {
       <View style={styles.form}>
         <TextInput
           style={styles.input}
+          placeholder="Nome"
+        />
+
+        <TextInput
+          style={styles.input}
           placeholder="E-mail"
         />
 
@@ -33,12 +35,17 @@ const Home = () => {
           placeholder="Senha"
         />
 
-        <RectButton style={styles.button} onPress={handleNavigateToChat}>
-          <Text style={styles.buttonText}>Login</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Confirmar Senha"
+        />
+
+        <RectButton style={styles.button}>
+          <Text style={styles.buttonText}>Enviar</Text>
         </RectButton>
         
-        <RectButton style={styles.button} onPress={handleNavigateToRegister}>
-          <Text style={styles.buttonText}>Registre-se</Text>
+        <RectButton style={styles.button} onPress={handleNavigateback}>
+          <Text style={styles.buttonText}>Cancelar</Text>
         </RectButton>
 
       </View>
@@ -61,7 +68,7 @@ const styles = StyleSheet.create({
     },
 
     form: {
-        flex: 2,
+        flex: 3,
         justifyContent:"flex-start"
     },
   
@@ -114,7 +121,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Home;
+export default Register;
 
 /*export default withFormik({
     mapPropsToValues: () => ({
@@ -125,4 +132,4 @@ export default Home;
     handleSubmit: (values) => {
         console.log(values);
     }
-})(Home);*/
+})(Register);*/
