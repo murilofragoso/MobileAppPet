@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet, Platform, KeyboardAvoidingView, Image } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { GiftedChat, Day } from 'react-native-gifted-chat';
 
 import { withFormik } from 'formik';
 
@@ -47,6 +47,9 @@ const Chat = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.imgContainer}>
+        <Image source={require('../../assets/dog.png')} resizeMode="center"/>
+      </View>
       <View style={styles.main}>
         <GiftedChat
           messages={messages}
@@ -55,6 +58,10 @@ const Chat = () => {
             _id: 1,
           }}
           placeholder="Escreva uma mensagem..."
+          renderAvatar={function() {return null}}
+          renderDay={function(props){
+            return <Day {... props} dateFormat="DD/MM/YYYY"/>
+          }}
         />
         {
           Platform.OS === 'android' && <KeyboardAvoidingView behavior="padding" />
@@ -67,73 +74,19 @@ const Chat = () => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: "#00BFFF",
-      alignItems: "center",
-      justifyContent: 'flex-end'
+      backgroundColor: "#00BFFF"
     },
-  
+
     main: {
-      flex: 1,
+      flex: 2,
       width: '100%',
-      maxHeight: '65%',
       backgroundColor: 'white'
     },
 
-    chat: {
-      height: 150
-    },
-
-    form: {
-        flex: 2,
-        justifyContent:"flex-start"
-    },
-  
-    title: {
-      color: 'white',
-      fontSize: 32,
-      maxWidth: 260,
-      marginTop: 64,
-    },
-  
-    description: {
-      color: '#6C6C80',
-      fontSize: 16,
-      marginTop: 16,
-      maxWidth: 260,
-      lineHeight: 24,
-    },
-  
-    footer: {},
-  
-    select: {},
-  
-    input: {
-      height: 60,
-      backgroundColor: '#FFF',
-      borderRadius: 10,
-      marginBottom: 8,
-      paddingHorizontal: 24,
-      fontSize: 16,
-      minWidth: 250,
-    },
-  
-    button: {
-      backgroundColor: '#0000CD',
-      height: 60,
-      flexDirection: 'row',
-      borderRadius: 10,
-      overflow: 'hidden',
-      alignItems: 'center',
-      marginTop: 8,
-      marginBottom: 8,
-    },
-  
-    buttonText: {
+    imgContainer: {
       flex: 1,
       justifyContent: 'center',
-      textAlign: 'center',
-      color: '#FFF',
-      fontSize: 16,
+      alignItems: "center"
     }
 });
 
