@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Platform, KeyboardAvoidingView, Image } from 'r
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { GiftedChat, Day } from 'react-native-gifted-chat';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { withFormik } from 'formik';
 
@@ -25,6 +26,22 @@ const Chat = () => {
   }
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [idUsuarioLogado, setIdUsuarioLogado] = useState<string>();
+
+  useEffect(() => {
+    async function getIdUsuario() {
+      try {
+        const idUsuario = await AsyncStorage.getItem('idUsuarioLogado');
+        if(idUsuario !== null){
+          setIdUsuarioLogado(idUsuario.toString())
+        }
+      } catch (e) {
+        console.log("Erro ao salvar idUsuarioLogado: " + e)
+      }
+    }
+
+    getIdUsuario();
+  }, [])
 
   useEffect(() => {
     setMessages([

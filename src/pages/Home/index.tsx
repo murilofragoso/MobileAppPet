@@ -1,19 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import { useLinkProps, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { withFormik } from 'formik';
 
-const Home = () => {
+import api from '../../services/api';
+
+const Home = (props) => {
   const navigation = useNavigation();
 
   function handleNavigateToRegister() {
     navigation.navigate('Register');
-  }
-
-  function handleNavigateToChat() {
-    navigation.navigate('Chat');
   }
 
   return (
@@ -26,14 +25,17 @@ const Home = () => {
         <TextInput
           style={styles.input}
           placeholder="E-mail"
+          onChangeText={text => props.setFieldValue('email', text)}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Senha"
+          secureTextEntry={true}
+          onChangeText={text => props.setFieldValue('senha', text)}
         />
 
-        <RectButton style={styles.button} onPress={handleNavigateToChat}>
+        <RectButton style={styles.button} onPress={props.handleSubmit}>
           <Text style={styles.buttonText}>Login</Text>
         </RectButton>
         
@@ -114,15 +116,28 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Home;
-
-/*export default withFormik({
+export default withFormik({
     mapPropsToValues: () => ({
-        email: '',
-        password: ''
+      email: '',
+      senha: ''
     }),
 
-    handleSubmit: (values) => {
-        console.log(values);
+    handleSubmit: (values, props) => {
+      const storeIdUsuario = async (value) => {
+        try{
+          await AsyncStorage.setItem('idUsuarioLogado', value);
+        } catch (e) {
+          console.log("Erro ao salvar idUsuarioLogado: " + e)
+        }
+      }
+
+      api.post('/usuario/login', values)
+        .then(response => {
+          storeIdUsuario(response.data);
+          props.props.navigation.navigate('Chat');
+        })
+        .catch(err => {
+          alert(err.response.data);
+        })
     }
-})(Home);*/
+})(Home);
