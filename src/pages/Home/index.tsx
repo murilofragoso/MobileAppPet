@@ -26,6 +26,7 @@ const Home = (props) => {
           style={styles.input}
           placeholder="E-mail"
           onChangeText={text => props.setFieldValue('email', text)}
+          autoCapitalize="none"
         />
 
         <TextInput
@@ -33,6 +34,7 @@ const Home = (props) => {
           placeholder="Senha"
           secureTextEntry={true}
           onChangeText={text => props.setFieldValue('senha', text)}
+          autoCapitalize="none"
         />
 
         <RectButton style={styles.button} onPress={props.handleSubmit}>
@@ -53,7 +55,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        backgroundColor: "#00BFFF"
+        backgroundColor: "#00BFFF",
+        paddingTop: 20
     },
   
     main: {

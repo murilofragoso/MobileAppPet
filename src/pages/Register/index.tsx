@@ -3,10 +3,11 @@ import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 
-
 import { withFormik } from 'formik';
 
-const Register = () => {
+import api from '../../services/api';
+
+const Register = (props) => {
   const navigation = useNavigation();
 
   function handleNavigateback() {
@@ -23,24 +24,34 @@ const Register = () => {
         <TextInput
           style={styles.input}
           placeholder="Nome"
+          autoCapitalize="none"
+          onChangeText={text => props.setFieldValue('nome', text)}
         />
 
         <TextInput
           style={styles.input}
           placeholder="E-mail"
+          autoCapitalize="none"
+          onChangeText={text => props.setFieldValue('email', text)}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Senha"
+          autoCapitalize="none"
+          secureTextEntry={true}
+          onChangeText={text => props.setFieldValue('senha', text)}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Confirmar Senha"
+          autoCapitalize="none"
+          secureTextEntry={true}
+          onChangeText={text => props.setFieldValue('confirmarSenha', text)}
         />
 
-        <RectButton style={styles.button}>
+        <RectButton style={styles.button} onPress={props.handleSubmit}>
           <Text style={styles.buttonText}>Enviar</Text>
         </RectButton>
         
@@ -58,7 +69,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        backgroundColor: "#00BFFF"
+        backgroundColor: "#00BFFF",
     },
   
     main: {
@@ -121,15 +132,22 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Register;
-
-/*export default withFormik({
+export default withFormik({
     mapPropsToValues: () => ({
+        nome: '',
         email: '',
-        password: ''
+        senha: '',
+        confirmarSenha: ''
     }),
 
-    handleSubmit: (values) => {
-        console.log(values);
+    handleSubmit: (values, props) => {
+      api.post('/usuario', values)
+        .then(response => {
+          alert("Usuário cadastrado com sucesso!");
+          props.props.navigation.goBack();
+        })
+        .catch(err => {
+          alert(err.response.data);
+        })
     }
-})(Register);*/
+})(Register);

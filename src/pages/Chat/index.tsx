@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, Platform, KeyboardAvoidingView, Image } from 'react-native';
-import { RectButton } from 'react-native-gesture-handler';
+import { SimpleLineIcons as Icon, } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { View, StyleSheet, Platform, KeyboardAvoidingView, Image,  TouchableOpacity } from 'react-native';
 import { GiftedChat, Day } from 'react-native-gifted-chat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { withFormik } from 'formik';
+
+import api from '../../services/api';
 
 interface Message {
     _id: number;
@@ -21,49 +23,74 @@ interface Message {
 const Chat = () => {
   const navigation = useNavigation();
 
-  function handleNavigateback() {
+  async function handleNavigateback() {
+    await AsyncStorage.removeItem('idUsuarioLogado');
     navigation.goBack();
   }
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [idUsuarioLogado, setIdUsuarioLogado] = useState<string>();
-
-  useEffect(() => {
-    async function getIdUsuario() {
-      try {
-        const idUsuario = await AsyncStorage.getItem('idUsuarioLogado');
-        if(idUsuario !== null){
-          setIdUsuarioLogado(idUsuario.toString())
-        }
-      } catch (e) {
-        console.log("Erro ao salvar idUsuarioLogado: " + e)
-      }
-    }
-
-    getIdUsuario();
-  }, [])
 
   useEffect(() => {
     setMessages([
       {
         _id: 1,
-        text: 'Olá Murilo!',
+        text: 'Olá Aumigo!',
         createdAt: new Date(),
         user: {
           _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
+          name: 'Melhor Aumigo',
+          avatar: '',
         },
       },
     ])
   }, [])
 
+  async function getIdUsuario() {
+    try {
+      const idUsuario = await AsyncStorage.getItem('idUsuarioLogado');
+      if(idUsuario !== null){
+        return idUsuario
+      }
+    } catch (e) {
+      console.log("Erro ao salvar idUsuarioLogado: " + e)
+    }
+  }
+
+  function postMensagem(mensagem){
+    api.post('/mensagem', mensagem)
+        .then(() => {
+          return true;
+        })
+        .catch(err => {
+          alert(err.response.data);
+          return false
+        })
+  }
+
   const onSend = useCallback((messages = []) => {
     setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+
+    getIdUsuario().then((idUsuarioLogado) => {
+      if(!idUsuarioLogado){
+        alert("você não está logado");
+        return;
+      }
+      var mensagem = {
+        "usuario": idUsuarioLogado,
+        "grauFelicidade": 100,
+        "texto": messages[0].text
+      }
+
+      postMensagem(mensagem);
+    })
   }, [])
 
   return (
     <View style={styles.container}>
+        <TouchableOpacity onPress={handleNavigateback} style={styles.btnContainer}>
+          <Icon name="logout" size={23} color="white">
+          </Icon>
+        </TouchableOpacity>
       <View style={styles.imgContainer}>
         <Image source={require('../../assets/dog.png')} resizeMode="center"/>
       </View>
@@ -91,20 +118,28 @@ const Chat = () => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: "#00BFFF"
+      backgroundColor: "#00BFFF",
+      paddingTop: 30
     },
 
     main: {
-      flex: 2,
+      flex: 7,
       width: '100%',
       backgroundColor: 'white'
     },
 
     imgContainer: {
-      flex: 1,
+      flex: 4,
       justifyContent: 'center',
       alignItems: "center"
+    },
+
+    btnContainer: {
+      zIndex: 1,
+      marginLeft: 10,
+      marginTop: 5,
     }
+
 });
 
 export default Chat;
