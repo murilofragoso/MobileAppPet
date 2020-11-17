@@ -4,7 +4,7 @@ import { RectButton } from 'react-native-gesture-handler';
 import { useLinkProps, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { withFormik } from 'formik';
+import { Form, withFormik } from 'formik';
 
 import api from '../../services/api';
 
@@ -27,6 +27,7 @@ const Home = (props) => {
           placeholder="E-mail"
           onChangeText={text => props.setFieldValue('email', text)}
           autoCapitalize="none"
+          value={props.values.email}
         />
 
         <TextInput
@@ -35,6 +36,7 @@ const Home = (props) => {
           secureTextEntry={true}
           onChangeText={text => props.setFieldValue('senha', text)}
           autoCapitalize="none"
+          value={props.values.senha}
         />
 
         <RectButton style={styles.button} onPress={props.handleSubmit}>
@@ -44,7 +46,6 @@ const Home = (props) => {
         <RectButton style={styles.button} onPress={handleNavigateToRegister}>
           <Text style={styles.buttonText}>Registre-se</Text>
         </RectButton>
-
       </View>
 
     </View>
@@ -137,6 +138,8 @@ export default withFormik({
       api.post('/usuario/login', values)
         .then(response => {
           storeIdUsuario(response.data);
+          props.setFieldValue('email', '')
+          props.setFieldValue('senha', '')
           props.props.navigation.navigate('Chat');
         })
         .catch(err => {
