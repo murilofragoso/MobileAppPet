@@ -29,12 +29,16 @@ const Chat = () => {
   }
 
   const [messages, setMessages] = useState<Message[]>([]);
+  var idMensagem = 1;
+  var salvarMensagem = false;
+  var sentimento = 1;
+  var conversaFinalizada = false;
 
   useEffect(() => {
     setMessages([
       {
         _id: 1,
-        text: 'Olá Aumigo!',
+        text: 'Olá Aumigo! Como se sente hoje?',
         createdAt: new Date(),
         user: {
           _id: 2,
@@ -52,13 +56,28 @@ const Chat = () => {
         return idUsuario
       }
     } catch (e) {
-      console.log("Erro ao salvar idUsuarioLogado: " + e)
+      console.log("Erro ao recuperar idUsuarioLogado: " + e)
     }
   }
 
   function postMensagem(mensagem){
     api.post('/mensagem', mensagem)
-        .then(() => {
+        .then((response) => {
+          idMensagem++;
+          let mensagem = [{
+            _id: idMensagem,
+            text: response.data.retornoMensagem,
+            createdAt: new Date(),
+            user: {
+              _id: 2,
+              name: 'Melhor Aumigo',
+              avatar: '',
+            },
+          }]
+          setMessages(previousMessages => GiftedChat.append(previousMessages, mensagem))
+          salvarMensagem = response.data.armazenarProxMensagem
+          conversaFinalizada = response.data.conversaFinalizada
+          sentimento = response.data.sentimento
           return true;
         })
         .catch(err => {
@@ -70,19 +89,23 @@ const Chat = () => {
   const onSend = useCallback((messages = []) => {
     setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
 
-    getIdUsuario().then((idUsuarioLogado) => {
-      if(!idUsuarioLogado){
-        alert("você não está logado");
-        return;
-      }
-      var mensagem = {
-        "usuario": idUsuarioLogado,
-        "grauFelicidade": 100,
-        "texto": messages[0].text
-      }
-
-      postMensagem(mensagem);
-    })
+    if (!conversaFinalizada) {
+      getIdUsuario().then((idUsuarioLogado) => {
+        if(!idUsuarioLogado){
+          alert("você não está logado");
+          return;
+        }
+        var mensagem = {
+          "usuario": idUsuarioLogado,
+          "grauFelicidade": 100,
+          "texto": messages[0].text,
+          "salvarMensagem": salvarMensagem,
+          "sentimento": sentimento
+        }
+  
+        postMensagem(mensagem);
+      })
+    }
   }, [])
 
   return (
@@ -143,14 +166,3 @@ const styles = StyleSheet.create({
 });
 
 export default Chat;
-
-/*export default withFormik({
-    mapPropsToValues: () => ({
-        email: '',
-        password: ''
-    }),
-
-    handleSubmit: (values) => {
-        console.log(values);
-    }
-})(Chat);*/
